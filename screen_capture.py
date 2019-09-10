@@ -17,11 +17,12 @@ def screen_record():
         if cv2.waitKey(25) & 0xFF == ord('q'):
             cv2.destroyAllWindows()
             break
-
+# get screen using image grab
 def get_screen():
     screen = np.array(ImageGrab.grab(bbox=(40,40,640,480)))
     return screen
 
+# get screen using mss
 def mss_get_screen() :
     sct = mss.mss()
     mon = {"top": shape[0], "left": shape[1], "width": shape[2]-shape[1], "height": shape[3]-shape[0]}
