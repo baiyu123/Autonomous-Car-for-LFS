@@ -48,6 +48,7 @@ import numpy as np
 # Import Python's socket module.
 import socket
 import struct
+import sys
 # Some constants.
 INSIM_VERSION = 4
 BUFFER_SIZE = 2048
@@ -56,7 +57,11 @@ BUFFER_SIZE = 2048
 ISP_ISI = 1
 ISP_VER = 2
 ISP_TINY = 3
+ISP_MCI = 38
 TINY_NONE = 0
+ISF_NLP = 16
+ISF_MCI = 32
+
 
 # Initialise the socket in TCP mode.
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,10 +76,10 @@ value = ('BBBBHHBcH16s16s',
                   1,            # ReqI
                   0,            # Zero
                   0,            # UDPPort
-                  0,            # Flags
+                    ISF_MCI,      # Flags
                   0,            # Sp0
                   ' '.encode('utf-8'),          # Prefix
-                  0,            # Interval
+                  40,            # Interval
                   'liveforspeed12345Qq!'.encode('utf-8'),   # Admin
                   'MyProgram'.encode('utf-8')) # IName
 isi = struct.pack(*value) # IName
@@ -89,11 +94,10 @@ while True:
     data = sock.recv(BUFFER_SIZE)
     if data:
         buffer += data
-        print(buffer)
         print("indicated size:" + str(buffer[0]))
         print("real size:" + str(len(buffer)))
         # Loop through completed packets.
-        while len(buffer) > 0 and len(buffer) >= buffer[0]:
+        if len(buffer) > 0 and len(buffer) >= buffer[0]:
 
             # Copy the packet from the buffer.
             packet = buffer[:buffer[0]]
@@ -103,13 +107,18 @@ while True:
                 size, type, reqi, subt = struct.unpack('BBBB', packet)
                 if subt == TINY_NONE:
                     sock.send(packet)  # Respond to keep-alive.
+            elif buffer[1] == ISP_MCI:
+                print("MCI")
+                size, type, req_i, numC, node, lap, plid, position, info, sp3, x, y, z, speed, direction, heading, angvel = struct.unpack('BBBBHHBBBBiiiHHHh', buffer)
+                # node, lap, plid, position, info, sp3, x, y, z, speed, direction, heading, angvel = struct.unpack('HHBBBBiiiHHHh', buffer)
+                print('speed:' + str(speed))
             elif buffer[1] == ISP_VER:
                 # Unpack the VER packet and check the InSim version.
                 size, type, reqi, _, version, product, insimver = struct.unpack('BBBB8s6sH',buffer)
                 print("size:"+str(size))
                 print("version:"+str(version.decode("utf-8","ignore")))
-                if insimver != INSIM_VERSION:
-                    break  # Invalid version, break loop.
+                # if insimver != INSIM_VERSION:
+                #     break  # Invalid version, break loop.
         buffer = buffer[buffer[0]:]
     else:
         break  # Connection has closed.
