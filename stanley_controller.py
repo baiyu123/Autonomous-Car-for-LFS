@@ -28,7 +28,7 @@ class stanley_controller:
                 min_dist = dist
                 min_index = i
         path = np.array([self.nodes[min_index+1].x-self.nodes[min_index].x, self.nodes[min_index+1].y - self.nodes[min_index].y])
-        # path = np.array([10, 10])
+        # path = np.array([-10, 10])
         head_zero = np.array([0,1])
         cos_theta = np.dot(path, head_zero)/np.linalg.norm(path)*np.linalg.norm(head_zero)
         theta = math.acos(cos_theta)
@@ -36,11 +36,12 @@ class stanley_controller:
         # see if the angle is on the left or right side
         if path[0] > 0:
             path_heading = 360 - path_heading
-
         heading_correct = path_heading - heading
         # make headding correct ranging from -180 to 180
         if heading_correct > 180:
             heading_correct -= 360
+        if heading_correct < -180:
+            heading_correct += 360
 
         # cross track error
         cross_dist_vec = np.array([x-self.nodes[min_index].x, y-self.nodes[min_index].y])
@@ -65,4 +66,4 @@ class stanley_controller:
         return total
 
 # test = stanley_controller(1, 100)
-# print(test.calculate_steering(1,1,1, 225, 10))
+# print(test.calculate_steering(1,1,1, 100, 10))
