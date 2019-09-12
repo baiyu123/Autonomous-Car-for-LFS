@@ -5,6 +5,8 @@ import cv2
 import numpy as np
 from LFS_socket import *
 from pid_controller import *
+from speed_lookup import *
+from stanley_controller import *
 #Pythonic API, item-at-a-time
 
 j = pyvjoy.VJoyDevice(1)
@@ -98,30 +100,60 @@ brake = j.data.wAxisY
 #
 lfs_socket = LFS_com(1, "Thread-1")
 lfs_socket.start()
-
+# pid param for gas
 kp = 5
 ki = 1
 dt = 0.1
-pid_ctrol = LFS_pid(kp,ki,dt)
+
+# pid param for brake
+kp_b = 3
+ki_b = 1
+dt = 0.1
+
+# stanley parm
+ke = 3
+max_angel = 24.0
+
+pid_ctrol_gas = LFS_pid(kp,ki,dt)
+pid_ctrol_brake = LFS_pid(kp_b, ki_b, dt)
 
 target = 120
+speed_lookup = LFS_speed()
+stanley = stanley_controller(ke, max_angel)
+trajectory = load_trajectory('./trajectory/traject3.txt')
+speed_lookup.set_nodes(trajectory)
+stanley.set_nodes(trajectory)
+
+pos = info_node()
 
 while True:
 
-    steering = int(x*MAX_VJOY)
 
-    curr = lfs_socket.speed_km
-    if curr >= target-5:
-        target = 90
-    print("curr:" + str(curr))
-    pid_val = pid_ctrol.calculate(target, curr, 100)
-    print("pid:" + str(pid_val))
+    curr_speed = lfs_socket.speed_km
+    pos.x = lfs_socket.x_meter
+    pos.y = lfs_socket.y_meter
+    pos.z = lfs_socket.z_meter
+    target = speed_lookup.lookup(pos.x, pos.y, pos.z, 30)
+    heading = lfs_socket.heading_deg
+    steering_deg = stanley.calculate_steering(pos.x, pos.y, pos.z, heading, curr_speed)
+    x = -0.5*(steering_deg/max_angel) + 0.5
+    print("heading:"  + str(heading))
+    print("steer deg:" + str(steering_deg))
+    print("steering:" + str(x))
+
+
+    # print("target:" + str(target))
+    # print("speed:" + str(curr))
+    # print("curr:" + str(curr))
+    pid_val = pid_ctrol_gas.calculate(target, curr_speed, 100)
+    # print("pid:" + str(pid_val))
 
     if pid_val <= 0:
-        z = -pid_val
+        pid_val = pid_ctrol_brake.calculate(target, curr_speed, 100)
+        z = -pid_val / 100.0
         y = 0.0
     else:
-        print("gas")
+        pid_ctrol_brake.clear()
         z = 0.0
         y = pid_val / 100.0
     j.data.wAxisZ = int(z*MAX_VJOY)

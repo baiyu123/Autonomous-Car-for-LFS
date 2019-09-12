@@ -5,14 +5,14 @@ class LFS_pid:
         self.p = 0
         self.i = 0
         self.dt = dt
-
+    def clear(self):
+        self.i = 0
 
     def calculate(self, target, current, max):
         error = target-current
         p = self.kp * error
         i = self.ki * (error*self.dt + self.i)
         total = p + i
-        print(p)
         if total < max:
             self.p = p
             self.i = i
