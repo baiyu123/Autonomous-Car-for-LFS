@@ -106,7 +106,7 @@ ki = 1
 dt = 0.1
 
 # pid param for brake
-kp_b = 3
+kp_b = 2
 ki_b = 1
 dt = 0.1
 
@@ -120,7 +120,7 @@ pid_ctrol_brake = LFS_pid(kp_b, ki_b, dt)
 target = 120
 speed_lookup = LFS_speed()
 stanley = stanley_controller(ke, max_angel)
-trajectory = load_trajectory('./trajectory/traject3.txt')
+trajectory = load_trajectory('./trajectory/traject4.txt')
 speed_lookup.set_nodes(trajectory)
 stanley.set_nodes(trajectory)
 
