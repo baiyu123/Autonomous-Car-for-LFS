@@ -114,30 +114,32 @@ dt = 0.1
 ke = 3
 max_angel = 24.0
 
+# initialize pid controller for throttle and brake
 pid_ctrol_gas = LFS_pid(kp,ki,dt)
 pid_ctrol_brake = LFS_pid(kp_b, ki_b, dt)
 
-target = 120
+# speed look up from known trajectory
 speed_lookup = LFS_speed()
 stanley = stanley_controller(ke, max_angel)
+# loading trajectory to speed lookup and stanley controller
 trajectory = load_trajectory('./trajectory/traject4.txt')
 speed_lookup.set_nodes(trajectory)
 stanley.set_nodes(trajectory)
-
+# current position
 pos = info_node()
 
 while True:
-
-
+    # get the current info
     curr_speed = lfs_socket.speed_km
     pos.x = lfs_socket.x_meter
     pos.y = lfs_socket.y_meter
     pos.z = lfs_socket.z_meter
     target = speed_lookup.lookup(pos.x, pos.y, pos.z, 30)
     heading = lfs_socket.heading_deg
+    # calculate the steering degree
     steering_deg = stanley.calculate_steering(pos.x, pos.y, pos.z, heading, curr_speed)
     x = -0.5*(steering_deg/max_angel) + 0.5
-    print("heading:"  + str(heading))
+    print("heading:" + str(heading))
     print("steer deg:" + str(steering_deg))
     print("steering:" + str(x))
 
@@ -145,6 +147,8 @@ while True:
     # print("target:" + str(target))
     # print("speed:" + str(curr))
     # print("curr:" + str(curr))
+
+    # calculate the current pid value for gas pedal and brake
     pid_val = pid_ctrol_gas.calculate(target, curr_speed, 100)
     # print("pid:" + str(pid_val))
 

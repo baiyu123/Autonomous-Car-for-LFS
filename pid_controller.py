@@ -1,4 +1,5 @@
 class LFS_pid:
+    # params form PID control
     def __init__(self, kp, ki, dt):
         self.kp = kp
         self.ki = ki
@@ -8,6 +9,7 @@ class LFS_pid:
     def clear(self):
         self.i = 0
 
+    # target speed and current speed, max for maximum throttle usually 100
     def calculate(self, target, current, max):
         error = target-current
         p = self.kp * error
