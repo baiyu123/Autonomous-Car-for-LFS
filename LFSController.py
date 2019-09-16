@@ -4,9 +4,9 @@ import screen_capture as sc
 import cv2
 import numpy as np
 from LFS_socket import *
-from pid_controller import *
 from speed_lookup import *
 from stanley_controller import *
+from throttle_controller import *
 #Pythonic API, item-at-a-time
 
 j = pyvjoy.VJoyDevice(1)
@@ -88,6 +88,7 @@ j.reset()
 j.reset_buttons()
 j.reset_povs()
 
+# controller output 0 to 1
 MAX_VJOY = 32767
 x = 0.5
 y = 0.0
@@ -107,22 +108,27 @@ dt = 0.1
 
 # pid param for brake
 kp_b = 2
-ki_b = 1
+ki_b = 0.9
 dt = 0.1
 
 # stanley parm
 ke = 3
 max_angel = 24.0
 
+# filenames for trajectory and throttle feedforward
+trajectory_filename = './trajectory/traject4.txt'
+throttle_filename = './feedforward_map/gtr.txt'
+
 # initialize pid controller for throttle and brake
-pid_ctrol_gas = LFS_pid(kp,ki,dt)
+pid_ctrol_gas = LFS_pid(kp, ki, dt)
+throttle_ctrol = throttle_control(throttle_filename,kp, ki,dt)
 pid_ctrol_brake = LFS_pid(kp_b, ki_b, dt)
 
 # speed look up from known trajectory
 speed_lookup = LFS_speed()
 stanley = stanley_controller(ke, max_angel)
 # loading trajectory to speed lookup and stanley controller
-trajectory = load_trajectory('./trajectory/traject4.txt')
+trajectory = load_trajectory(trajectory_filename)
 speed_lookup.set_nodes(trajectory)
 stanley.set_nodes(trajectory)
 # current position
@@ -134,34 +140,45 @@ while True:
     pos.x = lfs_socket.x_meter
     pos.y = lfs_socket.y_meter
     pos.z = lfs_socket.z_meter
-    target = speed_lookup.lookup(pos.x, pos.y, pos.z, 30)
+    target_speed = speed_lookup.lookup(pos.x, pos.y, pos.z, 30)
     heading = lfs_socket.heading_deg
     # calculate the steering degree
     steering_deg = stanley.calculate_steering(pos.x, pos.y, pos.z, heading, curr_speed)
     x = -0.5*(steering_deg/max_angel) + 0.5
-    print("heading:" + str(heading))
-    print("steer deg:" + str(steering_deg))
-    print("steering:" + str(x))
+    # print("heading:" + str(heading))
+    # print("steer deg:" + str(steering_deg))
+    # print("steering:" + str(x))
 
 
     # print("target:" + str(target))
     # print("speed:" + str(curr))
     # print("curr:" + str(curr))
 
-    # calculate the current pid value for gas pedal and brake
-    pid_val = pid_ctrol_gas.calculate(target, curr_speed, 100)
-    # print("pid:" + str(pid_val))
+    #debug
+    # if curr_speed >= 150:
+    #     target = 50
+    # x = 0.5
 
-    if pid_val <= 0:
-        pid_val = pid_ctrol_brake.calculate(target, curr_speed, 100)
-        z = -pid_val / 100.0
+
+    # calculate the current pid value for gas pedal and brake, value less than 100
+    # throttle_val = pid_ctrol_gas.calculate(target_speed, curr_speed, 100)
+    max_padel = 100
+    throttle_val = throttle_ctrol.calculate(target_speed, curr_speed, max_padel)
+
+    print("pid:" + str(throttle_val))
+    # brake needed
+    if throttle_val <= 0:
+        brake_val = pid_ctrol_brake.calculate(target_speed, curr_speed, max_padel)
+        z = -brake_val / 100.0
         y = 0.0
     else:
         pid_ctrol_brake.clear()
         z = 0.0
-        y = pid_val / 100.0
+        y = throttle_val / 100.0
     j.data.wAxisZ = int(z*MAX_VJOY)
     j.data.wAxisY = int(y*MAX_VJOY)
     j.data.wAxisX = int(x*MAX_VJOY)
     j.update()
     time.sleep(0.1)
+
+

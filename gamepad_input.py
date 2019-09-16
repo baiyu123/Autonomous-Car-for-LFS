@@ -36,14 +36,17 @@ class game_pad_lisener:
 
 gp = game_pad_lisener()
 while True:
-    rt_val = '0'
-    lt_val = '0'
+    rt_str = '0'
+    lt_str = '0'
     rt = gp.get_right_trigger()
     lt = gp.get_left_trigger()
     if rt is not None :
-        rt_val = str(rt)
+        rt /= 255.0
+        rt_str = str(rt)
 
     if lt is not None:
-        lt_val = str(lt)
-    print("left trigger" + lt_val)
-    print("right trigger" + rt_val)
+        lt /= 255.0
+        lt_str = str(lt)
+
+    print("left trigger" + rt_str)
+    print("right trigger" + lt_str)
