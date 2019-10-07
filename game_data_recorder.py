@@ -5,7 +5,7 @@ time.sleep(10)
 
 lfs_socket = LFS_com(1, "Thread-1")
 lfs_socket.start()
-f = open("./trajectory/traject3.txt",'a')
+f = open("./trajectory/trajectory_rwd.txt",'a')
 while True:
     x = lfs_socket.x_meter
     y = lfs_socket.y_meter

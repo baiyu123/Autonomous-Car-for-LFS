@@ -14,6 +14,8 @@ class stanley_controller:
     def calculate_dist(self, x1, y1, z1, x2, y2, z2):
         dist = math.sqrt((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2)
         return dist
+    def calculate_curvature(self):
+        pass
 
     # heading zero is positive y counter clock wise
     # x, y, z positions of the car, heading and speed of the car

@@ -28,3 +28,10 @@ def mss_get_screen() :
     mon = {"top": shape[0], "left": shape[1], "width": shape[2]-shape[1], "height": shape[3]-shape[0]}
     printscreen =  np.asarray(sct.grab(mon))
     return printscreen
+
+while True:
+    img = mss_get_screen()
+    cv2.imshow('window', img)
+    if 0xFF == ord('c'):
+        imwrite
+

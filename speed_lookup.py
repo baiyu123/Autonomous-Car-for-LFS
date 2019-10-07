@@ -45,18 +45,19 @@ class LFS_speed:
     # def calculate_dist(self, x1, y1, z1, x2, y2, z2):
 
 
-    def lookup(self, x, y, z, default):
+    def lookup(self, x, y, z, default_speed):
         sum = 0
         count = 0
+        range = 6
         for node in self.nodes:
 
-            if abs(node.x - x) < 10 and abs(node.y - y) < 10 and abs(node.z - z) < 10:
+            if abs(node.x - x) < range and abs(node.y - y) < range and abs(node.z - z) < range:
                 sum += node.speed
                 count += 1
         if count != 0:
             avg = sum/count
         else:
-            avg = default
+            avg = default_speed
         return avg
 
     # set trajectory nodes

@@ -140,7 +140,7 @@ while True:
     pos.x = lfs_socket.x_meter
     pos.y = lfs_socket.y_meter
     pos.z = lfs_socket.z_meter
-    target_speed = speed_lookup.lookup(pos.x, pos.y, pos.z, 30)
+    target_speed = speed_lookup.lookup(pos.x, pos.y, pos.z, 50)
     heading = lfs_socket.heading_deg
     # calculate the steering degree
     steering_deg = stanley.calculate_steering(pos.x, pos.y, pos.z, heading, curr_speed)
@@ -165,7 +165,7 @@ while True:
     max_padel = 100
     throttle_val = throttle_ctrol.calculate(target_speed, curr_speed, max_padel)
 
-    print("pid:" + str(throttle_val))
+    # print("pid:" + str(throttle_val))
     # brake needed
     if throttle_val <= 0:
         brake_val = pid_ctrol_brake.calculate(target_speed, curr_speed, max_padel)
