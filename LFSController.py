@@ -1,12 +1,9 @@
 import pyvjoy
 import time
-import screen_capture as sc
-import cv2
-import numpy as np
 from LFS_socket import *
-from speed_lookup import *
-from stanley_controller import *
-from throttle_controller import *
+from controllers.speed_lookup import *
+from controllers.stanley_controller import *
+from controllers.throttle_controller import *
 #Pythonic API, item-at-a-time
 
 j = pyvjoy.VJoyDevice(1)

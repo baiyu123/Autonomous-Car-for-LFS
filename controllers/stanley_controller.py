@@ -1,4 +1,3 @@
-from speed_lookup import info_node
 import math
 import numpy as np
 

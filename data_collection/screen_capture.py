@@ -4,7 +4,7 @@ import cv2
 import time
 import mss
 
-shape = (40,40,640,480)
+shape = (40,40,853,480)
 
 def screen_record():
     last_time = time.time()
@@ -29,9 +29,9 @@ def mss_get_screen() :
     printscreen =  np.asarray(sct.grab(mon))
     return printscreen
 
-while True:
-    img = mss_get_screen()
-    cv2.imshow('window', img)
-    if 0xFF == ord('c'):
-        imwrite
+# while True:
+#     img = mss_get_screen()
+#     cv2.imshow('window', img)
+#     if 0xFF == ord('c'):
+#         imwrite
 
