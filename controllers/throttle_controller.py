@@ -19,7 +19,6 @@ class throttle_control:
             total = max_val
         if current_speed < 40:
             total = min(total, 60)
-        print(current_speed)
         return total
 
 

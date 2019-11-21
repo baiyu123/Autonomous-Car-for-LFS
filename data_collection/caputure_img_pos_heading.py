@@ -6,7 +6,7 @@ time.sleep(10)
 
 lfs_socket = LFS_com(1, "Thread-1")
 lfs_socket.start()
-f = open("../trajectory/img_pos.txt",'a')
+
 count = 0
 while True:
     img = mss_get_screen()
@@ -22,9 +22,12 @@ while True:
     print("Y:" + str(y))
     print("Z:" + str(z))
     # print("head:" + str(heading))
+    f = open("../trajectory/img_pos.txt", 'a')
     f.write("v " + str(x) + " " + str(y) + " " + str(z)+"\n")
+    f.write("h " + str(heading) + "\n")
+    f.close()
     cv2.imwrite("../screen_images/frame_%d.png" % count, img)
     img = mss_get_screen()
-    time.sleep(0.5)
+    time.sleep(0.1)
     count += 1
-f.close()
+

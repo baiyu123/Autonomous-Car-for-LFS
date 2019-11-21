@@ -113,7 +113,7 @@ ke = 3
 max_angel = 24.0
 
 # filenames for trajectory and throttle feedforward
-trajectory_filename = './trajectory/traject4.txt'
+trajectory_filename = './trajectory/traject_gen.txt'
 throttle_filename = './feedforward_map/gtr.txt'
 
 # initialize pid controller for throttle and brake
